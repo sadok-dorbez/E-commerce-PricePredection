@@ -27,7 +27,10 @@
     "mongoose": "^6.8.4",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.20",
+    "os-browserify": "^0.3.0",
+    "python-shell": "^5.0.0",
     "react-icons": "^4.7.1",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "util": "^0.12.5"
   }
 }

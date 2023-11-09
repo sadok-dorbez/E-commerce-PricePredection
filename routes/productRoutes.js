@@ -15,6 +15,7 @@ import {
   searchProductController,
   updateProductController,
 } from "../controllers/productController.js";
+import predictRouter from "../Predection/PredictProduct.js"
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 import formidable from "express-formidable";
 
@@ -39,6 +40,7 @@ router.put(
 
 //get products
 router.get("/get-product", getProductController);
+router.post('/predict',  predictRouter.predict);
 
 //single product
 router.get("/get-product/:slug", getSingleProductController);

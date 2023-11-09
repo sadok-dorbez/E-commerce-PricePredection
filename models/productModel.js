@@ -34,6 +34,20 @@ const productSchema = new mongoose.Schema(
     shipping: {
       type: Boolean,
     },
+    size: {
+      type: String,
+      enum: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'],
+      required: true,
+    },
+    theme: {
+      type: String,
+      enum: ['summer', 'winter', 'autumn', 'spring'],
+      required: true,
+    },
+    predictedPrice: {
+      type: Number,
+      default: null, 
+    },
   },
   { timestamps: true }
 );

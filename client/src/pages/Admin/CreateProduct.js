@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { Select } from "antd";
 import { useNavigate } from "react-router-dom";
+
 const { Option } = Select;
 
 const CreateProduct = () => {
@@ -17,6 +18,9 @@ const CreateProduct = () => {
   const [quantity, setQuantity] = useState("");
   const [shipping, setShipping] = useState("");
   const [photo, setPhoto] = useState("");
+  const [theme, setThemee] = useState("");
+  const [size, setSize] = useState("");
+
 
   //get all category
   const getAllCategory = async () => {
@@ -46,6 +50,9 @@ const CreateProduct = () => {
       productData.append("quantity", quantity);
       productData.append("photo", photo);
       productData.append("category", category);
+      productData.append("shipping", shipping);
+      productData.append("size", size);
+      productData.append("theme", theme);
       const { data } = axios.post(
         "/api/v1/product/create-product",
         productData
@@ -128,6 +135,24 @@ const CreateProduct = () => {
                   placeholder="write a description"
                   className="form-control"
                   onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <textarea
+                  type="text"
+                  value={size}
+                  placeholder="write the size"
+                  className="form-control"
+                  onChange={(e) => setSize(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <textarea
+                  type="text"
+                  value={theme}
+                  placeholder="write a theme"
+                  className="form-control"
+                  onChange={(e) => setThemee(e.target.value)}
                 />
               </div>
 

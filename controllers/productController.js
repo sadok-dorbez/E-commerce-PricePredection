@@ -19,47 +19,67 @@ var gateway = new braintree.BraintreeGateway({
 
 export const createProductController = async (req, res) => {
   try {
-    const { name, description, price, category, quantity, shipping } =
-      req.fields;
+    const { name, description, price, category, quantity, shipping } = req.fields;
     const { photo } = req.files;
-    //alidation
+
+    // Validation
     switch (true) {
       case !name:
-        return res.status(500).send({ error: "Name is Required" });
+        return res.status(500).send({ error: 'Name is Required' });
       case !description:
-        return res.status(500).send({ error: "Description is Required" });
+        return res.status(500).send({ error: 'Description is Required' });
       case !price:
-        return res.status(500).send({ error: "Price is Required" });
+        return res.status(500).send({ error: 'Price is Required' });
       case !category:
-        return res.status(500).send({ error: "Category is Required" });
+        return res.status(500).send({ error: 'Category is Required' });
       case !quantity:
-        return res.status(500).send({ error: "Quantity is Required" });
+        return res.status(500).send({ error: 'Quantity is Required' });
       case photo && photo.size > 1000000:
-        return res
-          .status(500)
-          .send({ error: "photo is Required and should be less then 1mb" });
+        return res.status(500).send({
+          error: 'photo is Required and should be less than 1mb',
+        });
     }
 
-    const products = new productModel({ ...req.fields, slug: slugify(name) });
-    if (photo) {
-      products.photo.data = fs.readFileSync(photo.path);
-      products.photo.contentType = photo.type;
-    }
-    await products.save();
-    res.status(201).send({
-      success: true,
-      message: "Product Created Successfully",
-      products,
-    });
+    // Process input data for prediction
+    let inputData = {
+      units: req.body.units,
+      size: req.body.size,
+      shipped: req.body.shipped,
+      theme: req.body.theme,
+    };
+
+    // Perform prediction
+    let estimatedPrice = await predict(inputData);
+
+    // Handle the estimated price
+    console.log('Estimated Price:', estimatedPrice);
+
+    // Continue with the rest of the process
+
+    // Send success response
+    res.status(200).send({ message: 'Product Created Successfully' });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error in crearing product",
-    });
+    console.error(error);
+    res.status(500).send({ error: 'Server Error' });
   }
 };
+
+async function predict(inputData) {
+  try {
+    const response = await axios.post(
+      'http://127.0.0.1:6000/predict',
+      inputData,
+      {
+        headers: { 'Content-Type': 'application/json' },
+        responseType: 'json',
+      }
+    );
+    return response.data.predicted_value;
+  } catch (error) {
+    console.error(error);
+    return 'Fail';
+  }
+}
 
 //get all products
 export const getProductController = async (req, res) => {
@@ -374,4 +394,5 @@ export const brainTreePaymentController = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+   
 };
