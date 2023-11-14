@@ -15,8 +15,8 @@ const CreateProduct = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [shipping, setShipping] = useState("");
+  const [units, setUnits] = useState("");
+  const [shipped, setShipped] = useState("");
   const [photo, setPhoto] = useState("");
   const [theme, setThemee] = useState("");
   const [size, setSize] = useState("");
@@ -47,10 +47,10 @@ const CreateProduct = () => {
       productData.append("name", name);
       productData.append("description", description);
       productData.append("price", price);
-      productData.append("quantity", quantity);
+      productData.append("units", units);
       productData.append("photo", photo);
       productData.append("category", category);
-      productData.append("shipping", shipping);
+      productData.append("shipped", shipped);
       productData.append("size", size);
       productData.append("theme", theme);
       const { data } = axios.post(
@@ -168,10 +168,10 @@ const CreateProduct = () => {
               <div className="mb-3">
                 <input
                   type="number"
-                  value={quantity}
+                  value={units}
                   placeholder="write a quantity"
                   className="form-control"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={(e) => setUnits(e.target.value)}
                 />
               </div>
               <div className="mb-3">
@@ -182,7 +182,7 @@ const CreateProduct = () => {
                   showSearch
                   className="form-select mb-3"
                   onChange={(value) => {
-                    setShipping(value);
+                    setShipped(value);
                   }}
                 >
                   <Option value="0">No</Option>

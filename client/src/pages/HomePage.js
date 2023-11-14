@@ -163,6 +163,8 @@ const HomePage = () => {
                         currency: "USD",
                       })}
                     </h5>
+                  
+                    
                   </div>
                   <p className="card-text ">
                     {p.description.substring(0, 60)}...

@@ -1,11 +1,11 @@
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categoryModel.js";
 import orderModel from "../models/orderModel.js";
-
 import fs from "fs";
 import slugify from "slugify";
 import braintree from "braintree";
 import dotenv from "dotenv";
+import axios from 'axios';
 
 dotenv.config();
 
@@ -17,69 +17,105 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 });
 
+
+
+const generatePredictedPrice = async (product) => {
+  try {
+    // Extract relevant attributes from the product
+    const { units, shipped, size, theme } = product;
+
+    // Make a direct HTTP request to the Flask server
+    const predictionResponse = await axios.post('http://127.0.0.1:6000/predict', {
+      units,
+      shipped,
+      size,
+      theme,
+    });
+
+    const predictedPrice = predictionResponse.data.predicted_price;
+
+    // Update the product with the predicted price
+    product.predictedPrice = predictedPrice;
+
+    // Save the updated product to the database
+    await product.save();
+
+    console.log("Predicted price saved:", predictedPrice);
+
+    return { success: true, predictedPrice };
+  } catch (error) {
+    console.error("Error generating predicted price:", error);
+    return { success: false, error: "Error generating predicted price" };
+  }
+};
+
+
 export const createProductController = async (req, res) => {
   try {
-    const { name, description, price, category, quantity, shipping } = req.fields;
+    const { name, description, price, category, units, shipped, size, theme } =
+      req.fields;
     const { photo } = req.files;
 
     // Validation
     switch (true) {
       case !name:
-        return res.status(500).send({ error: 'Name is Required' });
+        return res.status(500).send({ error: "Name is Required" });
       case !description:
-        return res.status(500).send({ error: 'Description is Required' });
+        return res.status(500).send({ error: "Description is Required" });
       case !price:
-        return res.status(500).send({ error: 'Price is Required' });
+        return res.status(500).send({ error: "Price is Required" });
       case !category:
-        return res.status(500).send({ error: 'Category is Required' });
-      case !quantity:
-        return res.status(500).send({ error: 'Quantity is Required' });
+        return res.status(500).send({ error: "Category is Required" });
+      case !units:
+        return res.status(500).send({ error: "Quantity is Required" });
       case photo && photo.size > 1000000:
-        return res.status(500).send({
-          error: 'photo is Required and should be less than 1mb',
-        });
+        return res.status(500).send({ error: "Photo is Required and should be less than 1mb" });
+      case !shipped:
+        return res.status(500).send({ error: "Shipping status is Required" });
+      case !size:
+        return res.status(500).send({ error: "Size is Required" });
+      case !theme:
+        return res.status(500).send({ error: "Theme is Required" });
     }
 
-    // Process input data for prediction
-    let inputData = {
-      units: req.body.units,
-      size: req.body.size,
-      shipped: req.body.shipped,
-      theme: req.body.theme,
-    };
+    // Create a new product instance
+    const newProduct = new productModel({ ...req.fields, slug: slugify(name) });
 
-    // Perform prediction
-    let estimatedPrice = await predict(inputData);
+    // If there is a photo, handle it
+    if (photo) {
+      newProduct.photo.data = fs.readFileSync(photo.path);
+      newProduct.photo.contentType = photo.type;
+    }
 
-    // Handle the estimated price
-    console.log('Estimated Price:', estimatedPrice);
+    // Save the product to the database
+    await newProduct.save();
 
-    // Continue with the rest of the process
+    // Generate and save the predictedPrice
+    const predictionResult = await generatePredictedPrice(newProduct);
+
+    if (predictionResult.success) {
+      console.log("Predicted price generated and saved:", predictionResult.predictedPrice);
+    } else {
+      console.error("Failed to generate predicted price:", predictionResult.error);
+    }
 
     // Send success response
-    res.status(200).send({ message: 'Product Created Successfully' });
+    res.status(201).send({
+      success: true,
+      message: "Product Created Successfully",
+      product: newProduct,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: 'Server Error' });
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      error,
+      message: "Error in creating product",
+    });
   }
 };
 
-async function predict(inputData) {
-  try {
-    const response = await axios.post(
-      'http://127.0.0.1:6000/predict',
-      inputData,
-      {
-        headers: { 'Content-Type': 'application/json' },
-        responseType: 'json',
-      }
-    );
-    return response.data.predicted_value;
-  } catch (error) {
-    console.error(error);
-    return 'Fail';
-  }
-}
+
 
 //get all products
 export const getProductController = async (req, res) => {
@@ -166,7 +202,7 @@ export const deleteProductController = async (req, res) => {
 //upate producta
 export const updateProductController = async (req, res) => {
   try {
-    const { name, description, price, category, quantity, shipping } =
+    const { name, description, price, category, units, shipped } =
       req.fields;
     const { photo } = req.files;
     //alidation
@@ -179,7 +215,7 @@ export const updateProductController = async (req, res) => {
         return res.status(500).send({ error: "Price is Required" });
       case !category:
         return res.status(500).send({ error: "Category is Required" });
-      case !quantity:
+      case !units:
         return res.status(500).send({ error: "Quantity is Required" });
       case photo && photo.size > 1000000:
         return res

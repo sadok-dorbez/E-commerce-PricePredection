@@ -15,8 +15,8 @@ const UpdateProduct = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [shipping, setShipping] = useState("");
+  const [units, setUnits] = useState("");
+  const [shipped, setShipped] = useState("");
   const [photo, setPhoto] = useState("");
   const [id, setId] = useState("");
 
@@ -31,8 +31,8 @@ const UpdateProduct = () => {
       setDescription(data.product.description);
       setPrice(data.product.price);
       setPrice(data.product.price);
-      setQuantity(data.product.quantity);
-      setShipping(data.product.shipping);
+      setUnits(data.product.units);
+      setShipped(data.product.shipped);
       setCategory(data.product.category._id);
     } catch (error) {
       console.log(error);
@@ -67,7 +67,7 @@ const UpdateProduct = () => {
       productData.append("name", name);
       productData.append("description", description);
       productData.append("price", price);
-      productData.append("quantity", quantity);
+      productData.append("units", units);
       photo && productData.append("photo", photo);
       productData.append("category", category);
       const { data } = axios.put(
@@ -192,10 +192,10 @@ const UpdateProduct = () => {
               <div className="mb-3">
                 <input
                   type="number"
-                  value={quantity}
+                  value={units}
                   placeholder="write a quantity"
                   className="form-control"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={(e) => setUnits(e.target.value)}
                 />
               </div>
               <div className="mb-3">
@@ -206,9 +206,9 @@ const UpdateProduct = () => {
                   showSearch
                   className="form-select mb-3"
                   onChange={(value) => {
-                    setShipping(value);
+                    setShipped(value);
                   }}
-                  value={shipping ? "yes" : "No"}
+                  value={shipped ? "yes" : "No"}
                 >
                   <Option value="0">No</Option>
                   <Option value="1">Yes</Option>

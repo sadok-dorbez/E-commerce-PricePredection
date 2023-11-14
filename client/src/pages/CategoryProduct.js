@@ -48,6 +48,14 @@ const CategoryProduct = () => {
                           currency: "USD",
                         })}
                       </h5>
+                      {p.predictedPrice && (
+  <h5>{p.predictedPrice.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  })}</h5>
+)}
+
+                      
                     </div>
                     <p className="card-text ">
                       {p.description.substring(0, 60)}...

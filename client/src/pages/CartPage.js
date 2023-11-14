@@ -114,6 +114,7 @@ const CartPage = () => {
                     <p>{p.name}</p>
                     <p>{p.description.substring(0, 30)}</p>
                     <p>Price : {p.price}</p>
+                    <p style={{color: 'red'}}>Estimated Price: {p.predictedPrice}</p>
                   </div>
                   <div className="col-md-4 cart-remove-btn">
                     <button

@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    quantity: {
+    units: {
       type: Number,
       required: true,
     },
@@ -31,7 +31,7 @@ const productSchema = new mongoose.Schema(
       data: Buffer,
       contentType: String,
     },
-    shipping: {
+    shipped: {
       type: Boolean,
     },
     size: {
@@ -46,8 +46,9 @@ const productSchema = new mongoose.Schema(
     },
     predictedPrice: {
       type: Number,
-      default: null, 
+      default: null,
     },
+    
   },
   { timestamps: true }
 );
